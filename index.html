@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Temperature Hot</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background: url(images/bg-image.jpg) no-repeat;
+            background-size: cover;
+            height: 100vh;
+            background-color: #333; /* Fallback color if image is missing */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form class="col-md-6 m-auto py-5">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Enter a location for Weather ...">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-danger">Search</button>
+                </div>
+            </div>
+        </form>
+        <div class="weather-status text-white text-center">
+            <img src="https://openweathermap.org/img/wn/02d@2x.png" alt="">
+            <h1>Dhaka</h1>
+            <h3><span>38.06</span>&deg;C</h3>
+            <h1 class="lead">Clouds</h1>
+        </div>
+    </div>
+
+    <script>
+        const searchBtn = document.querySelector('.btn-danger');
+        const searchInput = document.querySelector('.form-control');
+        const cityNameDisplay = document.querySelector('.weather-status h1');
+        const tempDisplay = document.querySelector('.weather-status h3 span');
+        const weatherLead = document.querySelector('.weather-status .lead');
+        const weatherIcon = document.querySelector('.weather-status img');
+        
+        const API_KEY = 'adcae150ce9509e8c637e3474cf90ace';
+
+        // --- NEW: "Enter" Key Event Listener ---
+        searchInput.addEventListener('keypress', function(event) {
+            // Check if the key pressed is "Enter"
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Stops the page from reloading
+                searchBtn.click();      // Trigger the button click
+            }
+        });
+
+        // --- Search Button Logic ---
+        searchBtn.addEventListener('click', function() {
+            const city = searchInput.value;
+
+            if (city === "") {
+                alert("Please enter a city name!");
+                return;
+            }
+
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    // Check if the API returned a 200 (Success) code
+                    if (data.cod == 200) {
+                        cityNameDisplay.innerText = data.name;
+                        tempDisplay.innerText = data.main.temp;
+                        weatherLead.innerText = data.weather[0].main;
+                        
+                        const iconCode = data.weather[0].icon;
+                        weatherIcon.setAttribute('src', `https://openweathermap.org/img/wn/${iconCode}@2x.png`);
+                        
+                        searchInput.value = ''; // Clear input
+                    }
+                     else {
+                        // Handle errors (like 404 City Not Found)
+                        alert("City not found! Please check spelling.");
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert("Something went wrong with the connection.");
+                });
+        });
+    </script>
+
+</body>
+</html>
